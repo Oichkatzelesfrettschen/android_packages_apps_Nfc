@@ -1451,7 +1451,6 @@ static jboolean com_android_nfc_NfcManager_deinitialize(JNIEnv *e, jobject o)
 {
    struct timespec ts;
    NFCSTATUS status;
-   int result = JNI_FALSE;
    struct nfc_jni_native_data *nat;
    int bStackReset = FALSE;
    struct nfc_jni_callback_data cb_data;
@@ -1514,7 +1513,7 @@ static jboolean com_android_nfc_NfcManager_deinitialize(JNIEnv *e, jobject o)
       emergency_recovery(nat);
    }
 
-   result = nfc_jni_unconfigure_driver(nat);
+   nfc_jni_unconfigure_driver(nat);
 
    TRACE("NFC Deinitialized");
 
