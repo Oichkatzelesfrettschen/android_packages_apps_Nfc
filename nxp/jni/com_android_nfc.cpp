@@ -41,14 +41,6 @@ jint JNI_OnLoad(JavaVM *jvm, void* /*reserved*/)
       return JNI_ERR;
    if (android::register_com_android_nfc_NativeNfcTag(e) == -1)
       return JNI_ERR;
-   if (android::register_com_android_nfc_NativeP2pDevice(e) == -1)
-      return JNI_ERR;
-   if (android::register_com_android_nfc_NativeLlcpSocket(e) == -1)
-      return JNI_ERR;
-   if (android::register_com_android_nfc_NativeLlcpConnectionlessSocket(e) == -1)
-      return JNI_ERR;
-   if (android::register_com_android_nfc_NativeLlcpServiceSocket(e) == -1)
-      return JNI_ERR;
 
    return JNI_VERSION_1_6;
 }
@@ -200,20 +192,6 @@ nfc_jni_native_monitor_t* nfc_jni_init_monitor(void)
          return NULL;
       }
 
-      LIST_INIT(&nfc_jni_native_monitor->incoming_socket_head);
-
-      if(pthread_mutex_init(&nfc_jni_native_monitor->incoming_socket_mutex, NULL) == -1)
-      {
-         ALOGE("NFC Manager incoming socket mutex creation returned 0x%08x", errno);
-         return NULL;
-      }
-
-      if(pthread_cond_init(&nfc_jni_native_monitor->incoming_socket_cond, NULL) == -1)
-      {
-         ALOGE("NFC Manager incoming socket condition creation returned 0x%08x", errno);
-         return NULL;
-      }
-
 }
 
    return nfc_jni_native_monitor;
@@ -222,21 +200,6 @@ nfc_jni_native_monitor_t* nfc_jni_init_monitor(void)
 nfc_jni_native_monitor_t* nfc_jni_get_monitor(void)
 {
    return nfc_jni_native_monitor;
-}
-
-
-phLibNfc_Handle nfc_jni_get_p2p_device_handle(JNIEnv *e, jobject o)
-{
-   ScopedLocalRef<jclass> c(e, e->GetObjectClass(o));
-   jfieldID f = e->GetFieldID(c.get(), "mHandle", "I");
-   return e->GetIntField(o, f);
-}
-
-jshort nfc_jni_get_p2p_device_mode(JNIEnv *e, jobject o)
-{
-   ScopedLocalRef<jclass> c(e, e->GetObjectClass(o));
-   jfieldID f = e->GetFieldID(c.get(), "mMode", "S");
-   return e->GetShortField(o, f);
 }
 
 
@@ -292,13 +255,6 @@ phLibNfc_Handle nfc_jni_get_connected_handle(JNIEnv *e, jobject o)
 {
    ScopedLocalRef<jclass> c(e, e->GetObjectClass(o));
    jfieldID f = e->GetFieldID(c.get(), "mConnectedHandle", "I");
-   return e->GetIntField(o, f);
-}
-
-phLibNfc_Handle nfc_jni_get_nfc_socket_handle(JNIEnv *e, jobject o)
-{
-   ScopedLocalRef<jclass> c(e, e->GetObjectClass(o));
-   jfieldID f = e->GetFieldID(c.get(), "mHandle", "I");
    return e->GetIntField(o, f);
 }
 

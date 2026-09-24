@@ -140,7 +140,7 @@ public class NativeNfcTag implements TagEndpoint {
             Log.d(TAG, "Tag lost, restarting polling loop");
             doDisconnect();
             if (tagDisconnectedCallback != null) {
-                tagDisconnectedCallback.onTagDisconnected(mConnectedHandle);
+                tagDisconnectedCallback.onTagDisconnected();
             }
             if (DBG) Log.d(TAG, "Stopping background presence check");
         }
@@ -870,6 +870,27 @@ public class NativeNfcTag implements TagEndpoint {
             } else {
                 Log.d(TAG, "findNdef: Duplicate techIndex = " + techIndex);
             }
+        }
+    }
+
+    @Override
+    public NdefMessage getNdef() {
+        int[] ndefinfo = new int[2];
+        int status = checkNdefWithStatus(ndefinfo);
+        if (status != 0) {
+            Log.d(TAG, "getNdef: Check NDEF Failed - status = " + status);
+            return null;
+        }
+
+        byte[] buff = readNdef();
+        if (buff == null || buff.length == 0) {
+            // Unformatted and empty tags carry no NDEF message.
+            return null;
+        }
+        try {
+            return new NdefMessage(buff);
+        } catch (FormatException e) {
+            return null;
         }
     }
 }

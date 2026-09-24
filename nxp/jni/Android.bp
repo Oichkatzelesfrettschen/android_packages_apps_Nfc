@@ -1,0 +1,32 @@
+package {
+    default_team: "trendy_team_fwk_nfc",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// JNI half of the NXP PN544 DeviceHost. com.android.nfc.dhimpl.NativeNfcManager
+// loads it by name through System.loadLibrary("nfc_jni").
+cc_library_shared {
+    name: "libnfc_jni",
+
+    srcs: [
+        "com_android_nfc.cpp",
+        "com_android_nfc_list.cpp",
+        "com_android_nfc_NativeNfcManager.cpp",
+        "com_android_nfc_NativeNfcTag.cpp",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    header_libs: ["jni_headers"],
+    shared_libs: [
+        "libcutils",
+        "libhardware",
+        "liblog",
+        "libnativehelper",
+        "libnfc",
+        "libutils",
+    ],
+}

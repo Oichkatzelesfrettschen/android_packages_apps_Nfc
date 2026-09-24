@@ -89,6 +89,39 @@ android_app {
     },
 }
 
+// NXP PN544 configuration used without NFC apex.
+// The PN544 speaks ETSI HCI through libnfc-nxp, so the nxp DeviceHost replaces
+// the NCI one. A product selects this module in place of NfcNci, which requires
+// RELEASE_PACKAGE_NFC_STACK=NfcNci so that NfcNci is a product package.
+// This version compiles against platform.
+android_app {
+    name: "Nfc",
+    defaults: ["NfcNciDefaults"],
+    certificate: "platform",
+    sdk_version: "core_platform",
+    srcs: [
+        ":nfc-sources-nxp",
+        "shim_src/non_apex/**/*.java",
+    ],
+    libs: [
+        // order matters: classes in framework-nfc are resolved before framework, meaning
+        // @hide APIs in framework-nfc are resolved before @SystemApi stubs in framework
+        "framework-nfc.impl",
+        "framework",
+
+        // if sdk_version="" this gets automatically included, but here we need to add manually.
+        "framework-res",
+    ],
+    jni_libs: ["libnfc_jni"],
+    overrides: ["NfcNci"],
+    lint: {
+        baseline_filename: "lint-baseline-nfcnci.xml",
+        warning_checks: [
+            "FlaggedApi",
+        ],
+    },
+}
+
 // NCI Configuration embedded in NFC apex.
 // This version compiles against SDK API's.
 android_app {
@@ -136,6 +169,16 @@ filegroup {
     ],
     visibility: [
         "//packages/apps/Nfc/tests/unit",
+    ],
+}
+
+filegroup {
+    name: "nfc-sources-nxp",
+    srcs: [
+        "src/**/*.java",
+        "nxp/**/*.java",
+        ":framework-nfc-javastream-protos",
+        ":statslog-Nfc-java-gen",
     ],
 }
 

@@ -54,9 +54,6 @@ extern "C" {
 #define DISCOVERY_MODE_DISABLED           0
 #define DISCOVERY_MODE_ENABLED            1
 
-#define MODE_P2P_TARGET                   0
-#define MODE_P2P_INITIATOR                1
-
 /* Properties values */
 #define PROPERTY_LLCP_LTO                 0
 #define PROPERTY_LLCP_MIU                 1
@@ -147,7 +144,6 @@ struct nfc_jni_native_data
 
    /* Cached objects */
    jobject cached_NfcTag;
-   jobject cached_P2pDevice;
 
    /* Target discovery configuration */
    int discovery_modes_state[DISCOVERY_MODE_TABLE_SIZE];
@@ -186,11 +182,6 @@ typedef struct nfc_jni_native_monitor
    /* List used to track pending semaphores waiting for callback */
    struct listHead sem_list;
 
-   /* List used to track incoming socket requests (and associated sync variables) */
-   LIST_HEAD(, nfc_jni_listen_data) incoming_socket_head;
-   pthread_mutex_t incoming_socket_mutex;
-   pthread_cond_t  incoming_socket_cond;
-
 } nfc_jni_native_monitor_t;
 
 typedef struct nfc_jni_callback_data
@@ -205,19 +196,6 @@ typedef struct nfc_jni_callback_data
    void* pContext;
 
 } nfc_jni_callback_data_t;
-
-typedef struct nfc_jni_listen_data
-{
-   /* LLCP server socket receiving the connection request */
-   phLibNfc_Handle pServerSocket;
-
-   /* LLCP socket created from the connection request */
-   phLibNfc_Handle pIncomingSocket;
-
-   /* List entries */
-   LIST_ENTRY(nfc_jni_listen_data) entries;
-
-} nfc_jni_listen_data_t;
 
 /* TODO: treat errors and add traces */
 #define REENTRANCE_LOCK()        pthread_mutex_lock(&nfc_jni_get_monitor()->reentrance_mutex)
@@ -249,25 +227,14 @@ void nfc_jni_get_technology_tree(JNIEnv* e, phLibNfc_RemoteDevList_t* devList, u
                         ScopedLocalRef<jintArray>* handleList,
                         ScopedLocalRef<jintArray>* typeList);
 
-/* P2P */
-phLibNfc_Handle nfc_jni_get_p2p_device_handle(JNIEnv *e, jobject o);
-jshort nfc_jni_get_p2p_device_mode(JNIEnv *e, jobject o);
-
 /* TAG */
 jint nfc_jni_get_connected_technology(JNIEnv *e, jobject o);
 jint nfc_jni_get_connected_technology_libnfc_type(JNIEnv *e, jobject o);
 phLibNfc_Handle nfc_jni_get_connected_handle(JNIEnv *e, jobject o);
 jintArray nfc_jni_get_nfc_tag_type(JNIEnv *e, jobject o);
 
-/* LLCP */
-phLibNfc_Handle nfc_jni_get_nfc_socket_handle(JNIEnv *e, jobject o);
-
 int register_com_android_nfc_NativeNfcManager(JNIEnv *e);
 int register_com_android_nfc_NativeNfcTag(JNIEnv *e);
-int register_com_android_nfc_NativeP2pDevice(JNIEnv *e);
-int register_com_android_nfc_NativeLlcpConnectionlessSocket(JNIEnv *e);
-int register_com_android_nfc_NativeLlcpServiceSocket(JNIEnv *e);
-int register_com_android_nfc_NativeLlcpSocket(JNIEnv *e);
 
 } // namespace android
 
