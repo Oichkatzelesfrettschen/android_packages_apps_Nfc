@@ -38,6 +38,7 @@ java_aconfig_library {
         "//packages/apps/Nfc:__subpackages__",
     ],
     apex_available: [
+        "//apex_available:platform",
         "com.android.nfcservices",
     ],
 }
